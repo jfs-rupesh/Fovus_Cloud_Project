@@ -49,9 +49,10 @@ fovus-project-cdk-v2
         │   ec2Launch.zip (Lambda for booting up EC2 instance)
 ```
 
-## How To Run Project and Requirements
+## Results
 
-- Node version 20.x
+![application](Fovus_Cloud_Project\fovus-project-cdk-v2\results\reactApplication.png)
+
 
 ---
 
