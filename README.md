@@ -29,7 +29,7 @@ Cloud project for Fovus Coding Challenge Summer Intern
     - Upload the output file to S3.
     - Save the outputs and S3 path in DynamoDB FileTable.
    
-8. **Shutdown EC2**: Finally, the EC2 instance is shut down.
+8. **Shutdown EC2**: Finally, the EC2 instance is shut down after generating output file.
 
 ## Project Folder Structure
 
@@ -53,28 +53,66 @@ fovus-project-cdk-v2
 
 
 
-These are the output images stored in results folder
+These are the output images stored in results folder(fovus-project-cdk-v2\results)
 
-React Application
+****Deployment Stacks  via CDK  Typescript
+
+
+![application](fovus-project-cdk-v2/results/StackDeployed_CDK.png)
+
+
+****React Application
 
 ![application](fovus-project-cdk-v2/results/reactApplication.png)
 
 
-Initial S3 Bucket
+****Initial S3 Bucket
 ![application](fovus-project-cdk-v2/results/initialS3Bucket.png)
 
-Client Input
+****Client Input
 ![application](fovus-project-cdk-v2/results/inputReact.png)
 
 
-Input File Content
+****Input File Content
 ![application](fovus-project-cdk-v2/results/initialInputFIle.png)
 
-OutPut File Content
+****OutPut File Content
 ![application](fovus-project-cdk-v2/results/OutputS3File.png)
 
-Final S3 Bucket 
+****Final S3 Bucket 
 ![application](fovus-project-cdk-v2/results/OutputBucket.png)
+
+
+
+### Coding Implementation
+
+Separate stacks are created for each resource in this AWS cloud project. The `fovus-project-cdk-V2-Stack.ts` stack orchestrates all the stacks.
+
+Lambda functions are implemented following the Singleton Design Pattern and stored as .zip files under the `/assets/lambda` folder.
+
+A shell script is executed upon EC2 instance launch to generate an output file through systemctl service. The DynamoDB file ID is passed to the shell script at runtime using USER DATA. Python script is downloaded and executed in launched EC2 instance which performs tasks for generating releavant output file.
+
+### Future Scope
+
+Integration of Cognito for authentication.
+
+### References
+
+https://www.udemy.com/course/aws-certified-cloud-practitioner-new/learn/lecture/20244612?start=1#overview
+
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html
+
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.Lambda.html
+
+
+
+
+
+
+
+
+
+
 
 
 
