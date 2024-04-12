@@ -51,7 +51,37 @@ fovus-project-cdk-v2
 
 ## Results
 
+
+
+These are the output images stored in results folder
+
+React Application
+
 ![application](fovus-project-cdk-v2/results/reactApplication.png)
+
+
+Initial S3 Bucket
+![application](fovus-project-cdk-v2/results/initialS3Bucket.png)
+
+Client Input
+![application](fovus-project-cdk-v2/results/inputReact.png)
+
+
+Input File Content
+![application](fovus-project-cdk-v2/results/initialInputFIle.png)
+
+OutPut File Content
+![application](fovus-project-cdk-v2/results/OutputS3File.png)
+
+Final S3 Bucket 
+![application](fovus-project-cdk-v2/results/OutputBucket.png)
+
+
+
+
+
+
+
 
 
 ---
