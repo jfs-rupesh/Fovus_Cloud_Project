@@ -51,7 +51,7 @@ fovus-project-cdk-v2
 
 ## Results
 
-![application](Fovus_Cloud_Project\fovus-project-cdk-v2\results\reactApplication.png)
+![application](fovus-project-cdk-v2\results\reactApplication.png)
 
 
 ---
