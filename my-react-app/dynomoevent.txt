@@ -1,0 +1,72 @@
+import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { EC2Client, RunInstancesCommand, DescribeInstancesCommand, SendCommandCommand, TerminateInstancesCommand } from "@aws-sdk/client-ec2";
+
+const dynamoDBClient = new DynamoDBClient({ region: "your-region" });
+const s3Client = new S3Client({ region: "your-region" });
+const ec2Client = new EC2Client({ region: "your-region" });
+
+export const handler = async (event) => {
+    console.log('Received event:', JSON.stringify(event, null, 2));
+    
+    // Extract necessary information from the DynamoDB event
+    const record = event.Records[0];
+    const newItem = record.dynamodb.NewImage;
+    const fileId = newItem.id.S;
+    const s3Path = newItem.input_file_path.S;
+
+    try {
+        // Create a new EC2 instance
+        const runInstanceParams = {
+            ['your-security-group-id'],
+            SubnetId: 'your-subnet-id'
+        };
+        const runInstanceCommand = new RunInstancesCommand(runInstanceParams);
+        const instanceData = await ec2Client.send(runInstanceCommand);
+        console.log('Instance created:', instanceData);ImageId: 'your-ami-id',
+            InstanceType: 't2.micro',
+            KeyName: 'your-key-pair',
+            MaxCount: 1,
+            MinCount: 1,
+            SecurityGroupIds: 
+
+        // Extract instance ID from the response
+        const instanceId = instanceData.Instances[0].InstanceId;
+
+        // Wait for the instance to be in running state
+        const describeInstanceParams = {
+            InstanceIds: [instanceId]
+        };
+        const describeInstanceCommand = new DescribeInstancesCommand(describeInstanceParams);
+        await ec2Client.send(describeInstanceCommand);
+
+        console.log('Instance is now running.');
+
+        // Execute script on the instance
+        const scriptExecutionParams = {
+            DocumentName: 'AWS-RunShellScript',
+            InstanceIds: [instanceId],
+            Parameters: {
+                'commands': [
+                    `aws configure set region your-region`, // Set region for AWS CLI
+                    `aws dynamodb get-item --table-name YourTableName --key '{ "id": { "S": "${fileId}" } }' > input.json`, // Get input from DynamoDB
+                    `aws s3 cp s3://${s3Path} input.txt`, // Download input file from S3
+                    'cat input.txt >> input.json', // Append input from S3 to DynamoDB input
+                    'cat input.json', // Print concatenated input
+                    'aws s3 cp input.json s3://YourBucketName/output.json', // Upload concatenated input to S3
+                    `aws dynamodb put-item --table-name YourTableName --item '{ "id": { "S": "1" }, "output_file_path": { "S": "s3://YourBucketName/output.json" } }'`, // Save output and S3 path in DynamoDB
+                    'shutdown -h now' // Shutdown the instance
+                ]
+            }
+        };
+        const scriptExecutionCommand = new SendCommandCommand(scriptExecutionParams);
+        await ssmClient.send(scriptExecutionCommand);
+
+        console.log('Instance termination initiated.');
+
+        return { statusCode: 200, body: JSON.stringify('Execution successful') };
+    } catch (err) {
+        console.error('Error:', err);
+        return { statusCode: 500, body: JSON.stringify('Execution failed') };
+    }
+};
