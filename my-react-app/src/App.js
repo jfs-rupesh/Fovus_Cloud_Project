@@ -6,20 +6,15 @@ const S3Uploader = () => {
   const [file, setFile] = useState(null);
   const [textValue, setTextValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false); // New state for success popup
 
-  const region = "us-east-1";
-  const accessKeyId = "AKIA5H3OM7OEVXS3JPMT";
-  const secretAccessKey = "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";
+  const base64EncodedConfig = process.env.REACT_APP_AWS_CONFIG_BASE64;
+  const awsConfig = JSON.parse(atob(base64EncodedConfig));
 
-  const s3 = new AWS.S3({
-    region,
-    accessKeyId,
-    secretAccessKey,
-    signatureVersion: "v4",
-  });
+  const s3 = new AWS.S3(awsConfig);
 
-  const bucketName = "1229544838-fovus-bucket";
-  const apiEndpoint = "https://o9c18zlqvi.execute-api.us-east-1.amazonaws.com/Dev/uploadFile";
+  const bucketName = process.env.REACT_APP_S3_BUCKET_NAME;
+  const apiEndpoint = process.env.REACT_APP_API_ENDPOINT;
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -32,11 +27,7 @@ const S3Uploader = () => {
   const uploadFile = async () => {
     setLoading(true);
 
-    debugger;
     const fileName = file.name;
-
-    // const rawBytes = await randomBytes(4)
-    // fileName = fileName+'_'+rawBytes.toString('hex')
 
     try {
       const params = {
@@ -55,10 +46,10 @@ const S3Uploader = () => {
       if (response.ok) {
         console.log("File uploaded successfully");
 
-        debugger;
         const filePath = `s3://${bucketName}/${fileName}`;
 
         await insertDataToDynamoDB(filePath, textValue);
+        setUploadSuccess(true); 
       } else {
         console.error("Failed to upload file:", response.statusText);
       }
@@ -76,7 +67,7 @@ const S3Uploader = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ s3Path: filePath, inputText:textValue }),
+        body: JSON.stringify({ s3Path: filePath, inputText: textValue }),
       });
 
       if (!response.ok) {
@@ -92,10 +83,25 @@ const S3Uploader = () => {
   return (
     <div className="s3-uploader-container">
       <input type="file" onChange={handleFileChange} />
-      <input type="text" value={textValue} onChange={handleTextChange} placeholder="Enter text..." />
-      <button className="upload-button" onClick={uploadFile} disabled={!file || loading}>
+      <input
+        type="text"
+        value={textValue}
+        onChange={handleTextChange}
+        placeholder="Enter text..."
+      />
+      <button
+        className="upload-button"
+        onClick={uploadFile}
+        disabled={!file || loading}
+      >
         {loading ? "Uploading..." : "Upload"}
       </button>
+      {uploadSuccess && (
+        <div className="success-popup">
+          <p>File uploaded successfully!</p>
+          {/* You can add additional content or styling for the popup */}
+        </div>
+      )}
     </div>
   );
 };
